@@ -1,0 +1,111 @@
+{
+  "version": 3,
+  "endpoints": [
+    {
+      "endpoint": "/user-profile",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/user",
+          "host": ["http://user-service:3001"],
+          "group":"user"
+        },
+        {
+          "url_pattern": "/orders",
+          "host": ["http://orders-service:3002"],
+          "group":"orders"
+        }
+      ]
+    },
+    {
+      "endpoint": "/user-profile-transform",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/user",
+          "host": ["http://user-service:3001"],
+          "group":"user",
+          "extra_config":{
+            "lua":{
+              "script":"user_order_transform.lua",
+               "vars": {
+                "resp_user": "user"
+              }
+
+            }
+          }
+        },
+        {
+          "url_pattern": "/orders",
+          "host": ["http://orders-service:3002"],
+          "group":"orders",
+          "extra_config":{
+            "lua":{
+              "script":"user_order_transform.lua",
+               "vars": {
+                "resp_orders": "orders"
+              }
+
+            }
+          }
+        }
+      ],
+      "extra_config": {
+        "lua": {
+          "post": "user_order_transform.lua"
+        }
+      }
+    },
+    {
+      "endpoint": "/secure",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/data",
+          "host": ["http://load-balanced-service:3004"]
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "jwt": {
+            "alg": "HS256",
+            "jwk_url": "http://auth-service:3003/jwk",
+            "cache": true
+          }
+        }
+      }
+    },
+    {
+      "endpoint": "/cached",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/data",
+          "host": ["http://load-balanced-service:3004"]
+        }
+      ],
+      "extra_config": {
+        "cache/ttl": {
+          "duration": 60
+        }
+      }
+    },
+    {
+      "endpoint": "/resilient",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/data",
+          "host": ["http://load-balanced-service:3004"]
+        }
+      ],
+      "extra_config": {
+        "qos/circuit-breaker": {
+          "interval": 60,
+          "timeout": 10,
+          "max_errors": 5
+        }
+      }
+    }
+  ]
+}

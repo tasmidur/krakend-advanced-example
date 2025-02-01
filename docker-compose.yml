@@ -1,0 +1,77 @@
+version: "3.8"
+
+services:
+  krakend:
+    image: devopsfaith/krakend:watch
+    container_name: krakend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./krakend:/etc/krakend
+    depends_on:
+      - user-service
+      - orders-service
+      - auth-service
+      - load-balanced-service-1
+      - load-balanced-service-2
+    command: run -c /etc/krakend/krakend.json
+
+  user-service:
+    image: node:18-alpine
+    container_name: user-service
+    working_dir: /app
+    volumes:
+      - ./user-service:/app
+    ports:
+      - "3001:3001"
+    command: sh -c "npm install -g nodemon && npm install && nodemon index.js"
+    environment:
+      - PORT=3001
+
+  orders-service:
+    image: node:18-alpine
+    container_name: orders-service
+    working_dir: /app
+    volumes:
+      - ./orders-service:/app
+    ports:
+      - "3002:3002"
+    command: sh -c "npm install -g nodemon && npm install && nodemon index.js"
+    environment:
+      - PORT=3002
+
+  auth-service:
+    image: node:18-alpine
+    container_name: auth-service
+    working_dir: /app
+    volumes:
+      - ./auth-service:/app
+    ports:
+      - "3003:3003"
+    command: sh -c "npm install -g nodemon && npm install && nodemon index.js"
+    environment:
+      - PORT=3003
+
+  load-balanced-service-1:
+    image: node:18-alpine
+    container_name: load-balanced-service-1
+    working_dir: /app
+    volumes:
+      - ./load-balanced-service:/app
+    ports:
+      - "3004:3004"
+    command: sh -c "npm install -g nodemon && npm install && nodemon index.js"
+    environment:
+      - PORT=3004
+
+  load-balanced-service-2:
+    image: node:18-alpine
+    container_name: load-balanced-service-2
+    working_dir: /app
+    volumes:
+      - ./load-balanced-service:/app
+    ports:
+      - "3005:3005"
+    command: sh -c "npm install -g nodemon && npm install && nodemon index.js"
+    environment:
+      - PORT=3005
