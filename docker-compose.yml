@@ -14,7 +14,8 @@ services:
       - auth-service
       - load-balanced-service-1
       - load-balanced-service-2
-    command: run -c /etc/krakend/krakend.json
+      - warehouse
+    command: run -c /etc/krakend/modify_response.json
 
   user-service:
     image: node:18-alpine
@@ -75,3 +76,14 @@ services:
     command: sh -c "npm install -g nodemon && npm install && nodemon index.js"
     environment:
       - PORT=3005
+  warehouse:
+    image: node:18-alpine
+    container_name: warehouse
+    working_dir: /app
+    volumes:
+      - ./warehouse:/app
+    ports:
+      - "3006:3006"
+    command: sh -c "npm install -g nodemon && npm install && nodemon index.js"
+    environment:
+      - PORT=3006

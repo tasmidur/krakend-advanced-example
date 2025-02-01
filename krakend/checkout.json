@@ -1,0 +1,37 @@
+{
+  "version": 3,
+  "endpoints": [
+    {
+      "endpoint": "/checkout",
+      "method": "POST",
+      "input_headers": ["*"],
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/warehouse/check-availability",
+          "method": "GET",
+          "host": ["http://localhost:3006"],
+          "query_string": ["product_id"],
+          "extra_config": {
+            "modifier/lua-backend": {
+              "sources": ["check-availability.lua"],
+              "pre": "check_availability"
+            }
+          }
+        },
+        {
+          "url_pattern": "/place-orders",
+          "method": "POST",
+          "host": ["http://localhost:3002"],
+          "input_headers": ["*"],
+          "extra_config": {
+            "modifier/lua-backend": {
+              "sources": ["place-order.lua"], 
+              "pre": "place_order"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

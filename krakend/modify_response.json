@@ -1,0 +1,26 @@
+{
+  "version": 3,
+  "name": "My API Gateway",
+  "endpoints": [
+    {
+      "endpoint": "/my-endpoint",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/orders",
+          "host": ["http://orders-service:3002"],
+          "extra_config": {
+            "lua/modify_response": {
+              "script": "modify_response.lua"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "extra_config": {
+    "lua": {
+      "enable": true
+    }
+  }
+}
