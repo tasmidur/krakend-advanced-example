@@ -1,0 +1,29 @@
+{
+  "version": 3,
+  "endpoints": [
+    {
+      "@comment": "Feature: Sequential calls to two Node.js services",
+      "endpoint": "/hotel-destinations/{id}",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/hotels/{id}",
+          "method": "GET",
+          "host": ["http://hotel-service:3007"],
+          "group": "hotel_data"
+        },
+        {
+          "url_pattern": "/destinations/{resp0_hotel_data.destination_id}",
+          "method": "GET",
+          "host": ["http://destination-service:3008"],
+          "group": "destination_data"
+        }
+      ],
+      "extra_config": {
+        "proxy": {
+          "sequential": true
+        }
+      }
+    }
+  ]
+}

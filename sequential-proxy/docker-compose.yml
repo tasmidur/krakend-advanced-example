@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  krakend-sequential:
+    image: devopsfaith/krakend:watch
+    container_name: krakend-sequential
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./krakend:/etc/krakend
+    depends_on:
+      - hotel-service
+      - destination-service
+    command: run -c /etc/krakend/sequential-proxy.json
+
+  hotel-service:
+    image: node:18-alpine
+    container_name: hotel-service
+    working_dir: /app
+    volumes:
+      - ./hotel-service:/app
+    ports:
+      - "3007:3007"
+    command: sh -c "npm install -g nodemon && npm install && nodemon index.js"
+    environment:
+      - PORT=3007
+
+  destination-service:
+    image: node:18-alpine
+    container_name: destination-service
+    working_dir: /app
+    volumes:
+      - ./destination-service:/app
+    ports:
+      - "3008:3008"
+    command: sh -c "npm install -g nodemon && npm install && nodemon index.js"
+    environment:
+      - PORT=3008
